@@ -6,7 +6,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.String.valueOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class PhoneContactsTests {
@@ -38,17 +40,17 @@ public class PhoneContactsTests {
         phoneContacts.addGroup(groupName);
 
         //assert
-        assertEquals(expected, phoneContacts.getGroupMap());
-        assertTrue(expected.containsKey(groupName));
+        assertThat(expected, is (equalTo(phoneContacts.getGroupMap())));
+        assertThat(valueOf(true), expected.containsKey(groupName));
     }
 
     @ParameterizedTest
     @MethodSource("addGroupDataProvider")
-    public void testAddGroupFalse(Map<String, List<Contact>> expected, String[] groupName) {
+    public void testAddGroupTrue(Map<String, List<Contact>> expected, String[] groupName) {
         //act
         for (String name : groupName) {
             phoneContacts.addGroup(name);
-            assertTrue(expected.containsKey(name));
+            assertThat(valueOf(true), expected.containsKey(name));
         }
     }
 
@@ -67,7 +69,7 @@ public class PhoneContactsTests {
                                     Contact[] contacts, String[] groupName) {
 
         for (Contact contact : contacts) phoneContacts.addContactToMap(contact, groupName);
-        assertEquals(expected, phoneContacts.getGroupMap());
+        assertThat(expected, is (equalTo(phoneContacts.getGroupMap())));
 
     }
 
@@ -103,6 +105,55 @@ public class PhoneContactsTests {
         for (String name : groupName) phoneContacts.addGroup(name);
 
         return Stream.of(arguments(expected, phoneContacts, contacts, groupName));
+    }
+
+    @Test
+    public void testToString() {
+        // arrange
+        Contact contact1 = new Contact("Tatyana Petrova", "89767657766");
+        Contact contact2 = new Contact("Michael Popov", "89777439922");
+        Contact contact3 = new Contact("Nikolay Nekrasov", "89876268652");
+
+        String[] groupName1 = new String[]{"Family"};
+        String[] groupName2 = new String[]{"Work", "Friends"};
+        String[] groupName3 = new String[]{"Friends"};
+
+        phoneContacts.addGroup("Family");
+        phoneContacts.addGroup("Work");
+        phoneContacts.addGroup("Friends");
+
+        phoneContacts.addContactToMap(contact1, groupName1);
+        phoneContacts.addContactToMap(contact2, groupName2);
+        phoneContacts.addContactToMap(contact3, groupName3);
+
+        // act
+        System.out.println(phoneContacts);
+
+        // assert
+        assertThat(phoneContacts, hasToString("- Friends:\n" +
+                                                            "\t" + contact3 +
+                                                            "\t" + contact2 +
+                                                            "- Work:\n" +
+                                                            "\t" + contact2 +
+                                                            "- Family:\n" +
+                                                            "\t" + contact1));
+    }
+
+    @Test
+    public void testAddGroupCheckThenContains() {
+        // arrange
+        String[] groupName = new String[]{"Family", "Work", "Friends"};
+
+        //act
+        for (String name : groupName) {
+            phoneContacts.addGroup(name);
+        }
+
+        // assert
+        assertThat(phoneContacts.getGroupMap(), hasKey("Family"));
+        assertThat(phoneContacts.getGroupMap(), hasKey("Work"));
+        assertThat(phoneContacts.getGroupMap(), hasKey("Friends"));
+
     }
 
 }

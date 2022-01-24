@@ -10,7 +10,7 @@ public class Main {
         phoneContacts = groupCreate (phoneContacts, scanner);
         phoneContacts = contactsListCreate (phoneContacts, scanner);
 
-        System.out.print(phoneContacts.toString());
+        System.out.print(phoneContacts);
 
     }
 
