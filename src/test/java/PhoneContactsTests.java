@@ -1,15 +1,8 @@
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import java.util.*;
-import java.util.stream.Stream;
-
 import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class PhoneContactsTests {
 
@@ -41,42 +34,26 @@ public class PhoneContactsTests {
 
         //assert
         assertThat(expected, is (equalTo(phoneContacts.getGroupMap())));
-        assertThat(valueOf(true), expected.containsKey(groupName));
+
     }
 
-    @ParameterizedTest
-    @MethodSource("addGroupDataProvider")
-    public void testAddGroupTrue(Map<String, List<Contact>> expected, String[] groupName) {
-        //act
+    @Test
+    public void testAddGroupTrue() {
+        // arrange
+        String[] groupName = new String[]{"Family", "Work", "Friends"};
+        Map<String, List<Contact>> expected = new HashMap<>();
+        for (String name : groupName) expected.put(name, new ArrayList<>());
+        // act
         for (String name : groupName) {
             phoneContacts.addGroup(name);
+        // assert
             assertThat(valueOf(true), expected.containsKey(name));
         }
     }
 
-    static Stream<Arguments> addGroupDataProvider() {
-        String[] groupName = new String[]{"Family", "Work", "Friends"};
-        Map<String, List<Contact>> expected = new HashMap<>();
-        for (String name : groupName) expected.put(name, new ArrayList<>());
-        return Stream.of(
-                arguments(expected, groupName)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("addContactDataProvider")
-    public void testAddContactToMap(Map<String, List<Contact>> expected, PhoneContacts phoneContacts,
-                                    Contact[] contacts, String[] groupName) {
-
-        for (Contact contact : contacts) phoneContacts.addContactToMap(contact, groupName);
-        assertThat(expected, is (equalTo(phoneContacts.getGroupMap())));
-
-    }
-
-    static Stream<Arguments> addContactDataProvider() {
-        PhoneContacts phoneContacts = new PhoneContacts();
-
-        // создание набора тестовых контактов
+    @Test
+    public void testAddContactToMap() {
+        // arrange
         Contact[] contacts = {new Contact("Ivan Petrov", "+79354445566"),
                 new Contact("Petr Ivanov", "+79374497788"),
                 new Contact("Nikolai Semenov", "+79374494353"),
@@ -104,7 +81,12 @@ public class PhoneContactsTests {
         // создание набора пустых списков контактов по группам
         for (String name : groupName) phoneContacts.addGroup(name);
 
-        return Stream.of(arguments(expected, phoneContacts, contacts, groupName));
+        // act
+        for (Contact contact : contacts) phoneContacts.addContactToMap(contact, groupName);
+
+        //assert
+        assertThat(expected, is (equalTo(phoneContacts.getGroupMap())));
+
     }
 
     @Test
